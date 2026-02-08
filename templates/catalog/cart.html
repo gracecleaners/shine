@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Shopping Cart - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="page-header cart-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Shopping Cart</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Shopping Cart</h1>
+    </div>
+</section>
+
+<section class="cart-section">
+    <div class="container">
+        {% if cart.items.count > 0 %}
+        <div class="row">
+            <!-- Cart Items -->
+            <div class="col-lg-8">
+                <div class="cart-items-wrapper" data-aos="fade-up">
+                    <div class="cart-header-row">
+                        <span class="col-product">Product</span>
+                        <span class="col-price">Price</span>
+                        <span class="col-quantity">Quantity</span>
+                        <span class="col-total">Total</span>
+                        <span class="col-action"></span>
+                    </div>
+                    
+                    {% for item in cart.items.all %}
+                    <div class="cart-item" data-item-id="{{ item.id }}">
+                        <div class="cart-item-product">
+                            <div class="cart-item-image">
+                                {% if item.product.main_image %}
+                                <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                <div class="cart-item-placeholder">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="cart-item-details">
+                                <h4><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h4>
+                                <span class="cart-item-category">{{ item.product.category.name }}</span>
+                                {% if item.customization %}
+                                <div class="cart-item-customization">
+                                    <small><i class="fas fa-paint-brush"></i> Customized</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="cart-item-price">
+                            {% format_price item.unit_price current_currency %}
+                        </div>
+                        
+                        <div class="cart-item-quantity">
+                            <div class="quantity-selector">
+                                <button class="qty-btn minus" data-action="decrease">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="qty-input" value="{{ item.quantity }}" min="1" max="99">
+                                <button class="qty-btn plus" data-action="increase">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="cart-item-total">
+                            {% format_price item.total_price current_currency %}
+                        </div>
+                        
+                        <div class="cart-item-action">
+                            <button class="btn btn-remove" data-item-id="{{ item.id }}" title="Remove">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="cart-actions" data-aos="fade-up">
+                    <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Cart Summary -->
+            <div class="col-lg-4">
+                <div class="cart-summary" data-aos="fade-left">
+                    <h3 class="summary-title">Order Summary</h3>
+                    
+                    <div class="summary-row">
+                        <span>Subtotal ({{ cart.total_items }} items)</span>
+                        <span class="subtotal-amount">{% format_price cart.subtotal current_currency %}</span>
+                    </div>
+                    
+                    <div class="delivery-zone-selector">
+                        <label for="deliveryZone">Delivery Zone</label>
+                        <select id="deliveryZone" class="form-select">
+                            <option value="">Select delivery zone</option>
+                            {% for zone in delivery_zones %}
+                            <option value="{{ zone.id }}" 
+                                    data-fee="{{ zone.base_fee }}"
+                                    data-free-threshold="{{ zone.min_order_free_delivery|default:'' }}"
+                                    {% if selected_zone.id == zone.id %}selected{% endif %}>
+                                {{ zone.name }} - {% format_price zone.base_fee current_currency %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="delivery-info">
+                            {% if selected_zone %}
+                            Est. delivery: {{ selected_zone.estimated_days_min }}-{{ selected_zone.estimated_days_max }} days
+                            {% endif %}
+                        </small>
+                    </div>
+                    
+                    <div class="summary-row delivery-row" style="{% if not selected_zone %}display:none{% endif %}">
+                        <span>Delivery Fee</span>
+                        <span class="delivery-amount">
+                            {% if selected_zone %}
+                            {% format_price selected_zone.base_fee current_currency %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="summary-divider"></div>
+                    
+                    <div class="summary-row total-row">
+                        <span>Total</span>
+                        <span class="total-amount">
+                            {% if selected_zone %}
+                            {% format_price cart.subtotal|add:selected_zone.base_fee current_currency %}
+                            {% else %}
+                            {% format_price cart.subtotal current_currency %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <a href="{% url 'catalog:checkout' %}" class="btn btn-primary btn-lg w-100 mt-4">
+                        Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                    
+                    <div class="cart-features">
+                        <div class="feature">
+                            <i class="fas fa-lock"></i>
+                            <span>Secure Checkout</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-undo"></i>
+                            <span>Easy Returns</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-headset"></i>
+                            <span>24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart text-center" data-aos="fade-up">
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-primary btn-lg">
+                Start Shopping <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update quantity
+    document.querySelectorAll('.quantity-selector').forEach(selector => {
+        const input = selector.querySelector('.qty-input');
+        const minusBtn = selector.querySelector('.minus');
+        const plusBtn = selector.querySelector('.plus');
+        const cartItem = selector.closest('.cart-item');
+        const itemId = cartItem.dataset.itemId;
+        
+        function updateQuantity(newQty) {
+            fetch('{% url "catalog:update_cart_item" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `item_id=${itemId}&quantity=${newQty}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (newQty <= 0) {
+                        cartItem.remove();
+                    }
+                    document.getElementById('cartCount').textContent = data.cart_count;
+                    // Reload to update totals
+                    if (newQty <= 0) location.reload();
+                }
+            });
+        }
+        
+        minusBtn.addEventListener('click', () => {
+            let qty = parseInt(input.value) - 1;
+            if (qty >= 1) {
+                input.value = qty;
+                updateQuantity(qty);
+            }
+        });
+        
+        plusBtn.addEventListener('click', () => {
+            let qty = parseInt(input.value) + 1;
+            input.value = qty;
+            updateQuantity(qty);
+        });
+        
+        input.addEventListener('change', () => {
+            let qty = parseInt(input.value);
+            if (qty < 1) qty = 1;
+            updateQuantity(qty);
+        });
+    });
+    
+    // Remove item
+    document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            
+            fetch('{% url "catalog:remove_from_cart" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `item_id=${itemId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        });
+    });
+    
+    // Delivery zone change
+    const zoneSelect = document.getElementById('deliveryZone');
+    if (zoneSelect) {
+        zoneSelect.addEventListener('change', function() {
+            const zoneId = this.value;
+            if (zoneId) {
+                fetch('{% url "catalog:set_delivery_zone" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `zone_id=${zoneId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

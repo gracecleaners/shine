@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Checkout - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="page-header checkout-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'catalog:cart' %}">Cart</a></li>
+                <li class="breadcrumb-item active">Checkout</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Checkout</h1>
+    </div>
+</section>
+
+<section class="checkout-section">
+    <div class="container">
+        <form id="checkoutForm" method="POST" action="{% url 'catalog:place_order' %}">
+            {% csrf_token %}
+            <div class="row">
+                <!-- Checkout Form -->
+                <div class="col-lg-7">
+                    <div class="checkout-form-wrapper" data-aos="fade-up">
+                        <!-- Customer Information -->
+                        <div class="checkout-section-card">
+                            <h3 class="checkout-section-title">
+                                <span class="section-number">1</span>
+                                Customer Information
+                            </h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name *</label>
+                                    <input type="text" class="form-control" id="firstName" name="first_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name *</label>
+                                    <input type="text" class="form-control" id="lastName" name="last_name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Shipping Address -->
+                        <div class="checkout-section-card">
+                            <h3 class="checkout-section-title">
+                                <span class="section-number">2</span>
+                                Shipping Address
+                            </h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Street Address *</label>
+                                    <textarea class="form-control" id="address" name="address" rows="2" required placeholder="Building name, street, house number"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="city" class="form-label">City/Town *</label>
+                                    <input type="text" class="form-control" id="city" name="city" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="state" class="form-label">State/County</label>
+                                    <input type="text" class="form-control" id="state" name="state">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="postalCode" class="form-label">Postal Code</label>
+                                    <input type="text" class="form-control" id="postalCode" name="postal_code">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="country" class="form-label">Country *</label>
+                                    <input type="text" class="form-control" id="country" name="country" value="Kenya" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Delivery Zone -->
+                        <div class="checkout-section-card">
+                            <h3 class="checkout-section-title">
+                                <span class="section-number">3</span>
+                                Delivery Zone
+                            </h3>
+                            
+                            <div class="delivery-options">
+                                {% for zone in delivery_zones %}
+                                <div class="delivery-option">
+                                    <input type="radio" class="btn-check" name="delivery_zone" 
+                                           id="zone{{ zone.id }}" value="{{ zone.id }}"
+                                           data-fee="{{ zone.base_fee }}"
+                                           data-days-min="{{ zone.estimated_days_min }}"
+                                           data-days-max="{{ zone.estimated_days_max }}"
+                                           data-free-threshold="{{ zone.min_order_free_delivery|default:'' }}"
+                                           {% if forloop.first %}checked{% endif %}>
+                                    <label class="delivery-option-label" for="zone{{ zone.id }}">
+                                        <div class="delivery-option-info">
+                                            <strong>{{ zone.name }}</strong>
+                                            <span class="delivery-time">
+                                                <i class="fas fa-truck"></i>
+                                                {{ zone.estimated_days_min }}-{{ zone.estimated_days_max }} business days
+                                            </span>
+                                            {% if zone.min_order_free_delivery %}
+                                            <span class="free-delivery-note">
+                                                Free delivery on orders over {% format_price zone.min_order_free_delivery current_currency %}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="delivery-option-price">
+                                            {% format_price zone.base_fee current_currency %}
+                                        </div>
+                                    </label>
+                                </div>
+                                {% empty %}
+                                <div class="alert alert-warning">
+                                    No delivery zones available. Please contact us.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="checkout-section-card">
+                            <h3 class="checkout-section-title">
+                                <span class="section-number">4</span>
+                                Order Notes
+                            </h3>
+                            
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="notes" class="form-label">Additional Notes (Optional)</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Special instructions for delivery, gift wrapping requests, etc."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="col-lg-5">
+                    <div class="checkout-summary" data-aos="fade-left">
+                        <h3 class="summary-title">Order Summary</h3>
+                        
+                        <div class="checkout-items">
+                            {% for item in cart.items.all %}
+                            <div class="checkout-item">
+                                <div class="checkout-item-image">
+                                    {% if item.product.main_image %}
+                                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <div class="checkout-item-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                    <span class="item-quantity">{{ item.quantity }}</span>
+                                </div>
+                                <div class="checkout-item-details">
+                                    <h5>{{ item.product.name }}</h5>
+                                    <span class="item-price">{% format_price item.unit_price current_currency %}</span>
+                                </div>
+                                <div class="checkout-item-total">
+                                    {% format_price item.total_price current_currency %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span class="subtotal-value">{% format_price cart.subtotal current_currency %}</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span class="delivery-fee-value">
+                                {% if delivery_zones.first %}
+                                {% format_price delivery_zones.first.base_fee current_currency %}
+                                {% else %}
+                                $0.00
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-row total-row">
+                            <span>Total</span>
+                            <span class="total-value">
+                                {% format_price cart.subtotal current_currency %}
+                            </span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4" id="placeOrderBtn">
+                            <i class="fas fa-check me-2"></i> Place Order
+                        </button>
+                        
+                        <p class="payment-note text-center mt-3">
+                            <i class="fas fa-info-circle"></i>
+                            Payment will be collected upon delivery
+                        </p>
+                        
+                        <div class="checkout-security">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Your information is secure and encrypted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subtotal = {{ cart.subtotal }};
+    const deliveryOptions = document.querySelectorAll('input[name="delivery_zone"]');
+    const deliveryFeeDisplay = document.querySelector('.delivery-fee-value');
+    const totalDisplay = document.querySelector('.total-value');
+    
+    function updateTotals() {
+        const selectedZone = document.querySelector('input[name="delivery_zone"]:checked');
+        if (selectedZone) {
+            let deliveryFee = parseFloat(selectedZone.dataset.fee);
+            const freeThreshold = selectedZone.dataset.freeThreshold;
+            
+            if (freeThreshold && subtotal >= parseFloat(freeThreshold)) {
+                deliveryFee = 0;
+            }
+            
+            const total = subtotal + deliveryFee;
+            
+            // Update displays (simplified - you may want to format with currency)
+            deliveryFeeDisplay.textContent = '$' + deliveryFee.toFixed(2);
+            totalDisplay.textContent = '$' + total.toFixed(2);
+        }
+    }
+    
+    deliveryOptions.forEach(option => {
+        option.addEventListener('change', updateTotals);
+    });
+    
+    // Initial update
+    updateTotals();
+    
+    // Form submission
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('placeOrderBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                alert(data.error || 'Something went wrong. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check me-2"></i> Place Order';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check me-2"></i> Place Order';
+        });
+    });
+});
+</script>
+{% endblock %}

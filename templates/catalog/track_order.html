@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Order - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="page-header track-order-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Track Order</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Track Your Order</h1>
+    </div>
+</section>
+
+<section class="track-order-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Search Form -->
+                <div class="track-search-card" data-aos="fade-up">
+                    <form method="GET" action="{% url 'catalog:track_order' %}">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" name="order" 
+                                   placeholder="Enter your order number (e.g., SH12345678)"
+                                   value="{{ order_number }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i> Track
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                {% if order %}
+                <!-- Order Status -->
+                <div class="order-status-card" data-aos="fade-up">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-label">Order</span>
+                            <h3 class="order-number">{{ order.order_number }}</h3>
+                            <span class="order-date">Placed on {{ order.created_at|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="status-badge status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </div>
+                    </div>
+                    
+                    <!-- Status Timeline -->
+                    <div class="status-timeline">
+                        <div class="timeline-step {% if order.status in 'pending,confirmed,processing,shipped,delivered' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="step-info">
+                                <strong>Order Placed</strong>
+                                <span>{{ order.created_at|date:"M j, Y" }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if order.status in 'confirmed,processing,shipped,delivered' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="step-info">
+                                <strong>Order Confirmed</strong>
+                                <span>{% if order.status != 'pending' %}Confirmed{% else %}Pending{% endif %}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if order.status in 'processing,shipped,delivered' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="step-info">
+                                <strong>Processing</strong>
+                                <span>Preparing your order</span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if order.status in 'shipped,delivered' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="step-info">
+                                <strong>Shipped</strong>
+                                <span>On the way</span>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if order.status == 'delivered' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="step-info">
+                                <strong>Delivered</strong>
+                                <span>Enjoy your products!</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Details -->
+                    <div class="order-details-section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Shipping Address</h5>
+                                <p>
+                                    {{ order.full_name }}<br>
+                                    {{ order.address }}<br>
+                                    {{ order.city }}{% if order.state %}, {{ order.state }}{% endif %}<br>
+                                    {{ order.country }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Delivery Zone</h5>
+                                <p>
+                                    {{ order.delivery_zone.name }}<br>
+                                    Est. {{ order.delivery_zone.estimated_days_min }}-{{ order.delivery_zone.estimated_days_max }} business days
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div class="order-items-section">
+                        <h5>Items in this order</h5>
+                        {% for item in order.items.all %}
+                        <div class="track-order-item">
+                            <span class="item-name">{{ item.product_name }} × {{ item.quantity }}</span>
+                            <span class="item-price">${{ item.total_price }}</span>
+                        </div>
+                        {% endfor %}
+                        <div class="order-total">
+                            <span>Total</span>
+                            <span>${{ order.total }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                {% elif order_number %}
+                <div class="no-order-found" data-aos="fade-up">
+                    <div class="not-found-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Order Not Found</h3>
+                    <p>We couldn't find an order with number <strong>{{ order_number }}</strong>. Please check the order number and try again.</p>
+                </div>
+                {% endif %}
+                
+                <div class="track-help" data-aos="fade-up">
+                    <h5>Need Help?</h5>
+                    <p>If you have questions about your order, please <a href="{% url 'catalog:contact' %}">contact us</a> with your order number.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

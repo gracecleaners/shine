@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order {{ order.order_number }} - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <!-- Dashboard Sidebar -->
+            <div class="col-lg-3" data-aos="fade-up">
+                <div class="dashboard-menu">
+                    <a href="{% url 'accounts:profile' %}" class="menu-item">
+                        <i class="fas fa-user"></i> My Account
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="menu-item active">
+                        <i class="fas fa-shopping-bag"></i> Order History
+                    </a>
+                    <a href="{% url 'catalog:wishlist' %}" class="menu-item">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                    <a href="{% url 'accounts:edit_profile' %}" class="menu-item">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="menu-item text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="col-lg-9" data-aos="fade-up" data-aos-delay="100">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <div>
+                            <a href="{% url 'accounts:order_history' %}" class="text-muted mb-2 d-inline-block">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Orders
+                            </a>
+                            <h3>Order {{ order.order_number }}</h3>
+                        </div>
+                        <span class="status-badge status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <!-- Order Info -->
+                    <div class="order-info-grid">
+                        <div class="info-box">
+                            <h5><i class="fas fa-calendar me-2"></i> Order Date</h5>
+                            <p>{{ order.created_at|date:"F d, Y" }} at {{ order.created_at|time:"g:i A" }}</p>
+                        </div>
+                        <div class="info-box">
+                            <h5><i class="fas fa-user me-2"></i> Customer</h5>
+                            <p>{{ order.full_name }}<br>{{ order.email }}</p>
+                        </div>
+                        <div class="info-box">
+                            <h5><i class="fas fa-map-marker-alt me-2"></i> Shipping Address</h5>
+                            <p>{{ order.address }}<br>{{ order.city }}, {{ order.postal_code }}</p>
+                        </div>
+                        <div class="info-box">
+                            <h5><i class="fas fa-truck me-2"></i> Delivery</h5>
+                            <p>{% if order.delivery_zone %}{{ order.delivery_zone.name }}{% else %}Standard{% endif %}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div class="order-items-section">
+                        <h4>Items Ordered</h4>
+                        <div class="order-items-list">
+                            {% for item in order.items.all %}
+                            <div class="order-item">
+                                <div class="item-image">
+                                    {% if item.product.main_image %}
+                                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <div class="item-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="item-details">
+                                    <h5>{{ item.product.name }}</h5>
+                                    <p>Quantity: {{ item.quantity }}</p>
+                                    {% if item.customization %}
+                                    <small class="text-muted">Customized</small>
+                                    {% endif %}
+                                </div>
+                                <div class="item-price">
+                                    KES {{ item.total_price }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Order Totals -->
+                    <div class="order-totals">
+                        <div class="totals-row">
+                            <span>Subtotal</span>
+                            <span>KES {{ order.subtotal }}</span>
+                        </div>
+                        <div class="totals-row">
+                            <span>Delivery Fee</span>
+                            <span>KES {{ order.delivery_fee }}</span>
+                        </div>
+                        <div class="totals-row total">
+                            <span>Total</span>
+                            <span>KES {{ order.total_amount }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="order-actions">
+                        <a href="{% url 'catalog:track_order' %}?order={{ order.order_number }}" class="btn btn-primary">
+                            <i class="fas fa-map-marker-alt me-2"></i> Track Order
+                        </a>
+                        <a href="{% url 'catalog:contact' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-headset me-2"></i> Need Help?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

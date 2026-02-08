@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <!-- Dashboard Sidebar -->
+            <div class="col-lg-3" data-aos="fade-up">
+                <div class="dashboard-menu">
+                    <a href="{% url 'accounts:profile' %}" class="menu-item">
+                        <i class="fas fa-user"></i> My Account
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="menu-item active">
+                        <i class="fas fa-shopping-bag"></i> Order History
+                    </a>
+                    <a href="{% url 'catalog:wishlist' %}" class="menu-item">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                    <a href="{% url 'accounts:edit_profile' %}" class="menu-item">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="menu-item text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Orders List -->
+            <div class="col-lg-9" data-aos="fade-up" data-aos-delay="100">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Order History</h3>
+                    </div>
+                    
+                    {% if orders %}
+                    <div class="orders-table-wrapper">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td><strong>{{ order.order_number }}</strong></td>
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                    <td>{{ order.items.count }} items</td>
+                                    <td>KES {{ order.total_amount }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ order.status }}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'accounts:order_detail' order.order_number %}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-bag"></i>
+                        <h4>No orders yet</h4>
+                        <p>Start shopping to see your orders here</p>
+                        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">
+                            Browse Products
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="row">
+            <!-- Dashboard Sidebar -->
+            <div class="col-lg-3" data-aos="fade-up">
+                <div class="dashboard-menu">
+                    <a href="{% url 'accounts:profile' %}" class="menu-item">
+                        <i class="fas fa-user"></i> My Account
+                    </a>
+                    <a href="{% url 'accounts:order_history' %}" class="menu-item">
+                        <i class="fas fa-shopping-bag"></i> Order History
+                    </a>
+                    <a href="{% url 'catalog:wishlist' %}" class="menu-item">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                    <a href="{% url 'accounts:edit_profile' %}" class="menu-item active">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="menu-item text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Edit Form -->
+            <div class="col-lg-9" data-aos="fade-up" data-aos-delay="100">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Edit Profile</h3>
+                    </div>
+                    
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" class="edit-profile-form">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">First Name</label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                    <div class="form-error">{{ form.first_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                    <div class="form-error">{{ form.last_name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label class="form-label">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="form-error">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

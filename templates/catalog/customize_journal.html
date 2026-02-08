@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Customize {{ product.name }} - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="page-header customize-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}">Shop</a></li>
+                <li class="breadcrumb-item"><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></li>
+                <li class="breadcrumb-item active">Customize</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Customize Your Journal</h1>
+        <p class="page-subtitle">Make it uniquely yours</p>
+    </div>
+</section>
+
+<section class="customize-section">
+    <div class="container">
+        <div class="row">
+            <!-- Preview -->
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="customize-preview sticky-top">
+                    <div class="preview-image-wrapper">
+                        {% if product.main_image %}
+                        <img src="{{ product.main_image.url }}" alt="{{ product.name }}" id="previewImage">
+                        {% else %}
+                        <div class="preview-placeholder">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="preview-overlay">
+                            <div class="cover-text-preview" id="coverTextPreview"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-info">
+                        <h3>{{ product.name }}</h3>
+                        <div class="preview-price">
+                            <span class="base-price">Base Price: {% format_price product.current_price current_currency %}</span>
+                            <span class="total-price">Total: <strong id="totalPrice">{% format_price product.current_price current_currency %}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customization Options -->
+            <div class="col-lg-6" data-aos="fade-left">
+                <form id="customizeForm" class="customize-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    
+                    {% if customizable.allow_cover_text %}
+                    <!-- Cover Text -->
+                    <div class="customize-option">
+                        <h4>
+                            <span class="option-number">1</span>
+                            Cover Text (Embossing)
+                        </h4>
+                        <p class="option-description">Add personalized text to be embossed on the cover</p>
+                        
+                        <div class="form-group">
+                            <input type="text" class="form-control form-control-lg" name="cover_text" 
+                                   id="coverText" maxlength="50" placeholder="Enter your text (max 50 characters)">
+                            <small class="form-text text-muted">
+                                +{% format_price customizable.text_emboss_price current_currency %} for text embossing
+                            </small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if customizable.allow_cover_material %}
+                    <!-- Cover Material -->
+                    <div class="customize-option">
+                        <h4>
+                            <span class="option-number">2</span>
+                            Cover Material
+                        </h4>
+                        <p class="option-description">Choose the material for your journal cover</p>
+                        
+                        <div class="material-options">
+                            {% for material in materials %}
+                            <div class="material-option">
+                                <input type="radio" class="btn-check" name="cover_material" 
+                                       id="material_{{ material }}" value="{{ material }}"
+                                       {% if forloop.first %}checked{% endif %}
+                                       data-price="{% if material == 'leather' %}{{ customizable.leather_price }}{% elif material == 'vegan_leather' %}{{ customizable.vegan_leather_price }}{% else %}0{% endif %}">
+                                <label class="material-label" for="material_{{ material }}">
+                                    <span class="material-name">{{ material|title|cut:"_" }}</span>
+                                    {% if material == 'leather' %}
+                                    <span class="material-extra">+{% format_price customizable.leather_price current_currency %}</span>
+                                    {% elif material == 'vegan_leather' %}
+                                    <span class="material-extra">+{% format_price customizable.vegan_leather_price current_currency %}</span>
+                                    {% else %}
+                                    <span class="material-extra">Included</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if customizable.allow_cover_color %}
+                    <!-- Cover Color -->
+                    <div class="customize-option">
+                        <h4>
+                            <span class="option-number">3</span>
+                            Cover Color
+                        </h4>
+                        <p class="option-description">Select your preferred color</p>
+                        
+                        <div class="color-options">
+                            {% for color in colors %}
+                            <div class="color-option">
+                                <input type="radio" class="btn-check" name="cover_color" 
+                                       id="color_{{ forloop.counter }}" value="{{ color }}"
+                                       {% if forloop.first %}checked{% endif %}>
+                                <label class="color-label" for="color_{{ forloop.counter }}"
+                                       style="--color: {{ color }}"
+                                       title="{{ color }}">
+                                    <span class="color-name">{{ color }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if customizable.allow_page_type %}
+                    <!-- Page Type -->
+                    <div class="customize-option">
+                        <h4>
+                            <span class="option-number">4</span>
+                            Page Style
+                        </h4>
+                        <p class="option-description">Choose the ruling style for your pages</p>
+                        
+                        <div class="page-type-options">
+                            {% for page_type in page_types %}
+                            <div class="page-type-option">
+                                <input type="radio" class="btn-check" name="page_type" 
+                                       id="page_{{ page_type }}" value="{{ page_type }}"
+                                       {% if forloop.first %}checked{% endif %}>
+                                <label class="page-type-label" for="page_{{ page_type }}">
+                                    <div class="page-preview page-preview-{{ page_type }}"></div>
+                                    <span>{{ page_type|title }}</span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Add to Cart -->
+                    <div class="customize-actions">
+                        <div class="quantity-row">
+                            <label>Quantity</label>
+                            <div class="quantity-selector-lg">
+                                <button type="button" class="qty-btn minus">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" name="quantity" value="1" min="1" max="10" class="qty-input">
+                                <button type="button" class="qty-btn plus">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            Add Customized Journal to Cart
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const basePrice = {{ product.current_price }};
+    const embossPrice = {{ customizable.text_emboss_price }};
+    const coverTextInput = document.getElementById('coverText');
+    const coverTextPreview = document.getElementById('coverTextPreview');
+    const totalPriceDisplay = document.getElementById('totalPrice');
+    
+    function updatePrice() {
+        let total = basePrice;
+        
+        // Add emboss price if text is entered
+        if (coverTextInput && coverTextInput.value.trim().length > 0) {
+            total += embossPrice;
+        }
+        
+        // Add material price
+        const selectedMaterial = document.querySelector('input[name="cover_material"]:checked');
+        if (selectedMaterial) {
+            total += parseFloat(selectedMaterial.dataset.price || 0);
+        }
+        
+        totalPriceDisplay.textContent = '$' + total.toFixed(2);
+    }
+    
+    // Cover text preview
+    if (coverTextInput) {
+        coverTextInput.addEventListener('input', function() {
+            coverTextPreview.textContent = this.value;
+            updatePrice();
+        });
+    }
+    
+    // Material change
+    document.querySelectorAll('input[name="cover_material"]').forEach(input => {
+        input.addEventListener('change', updatePrice);
+    });
+    
+    // Quantity selector
+    const qtyInput = document.querySelector('.qty-input');
+    const minusBtn = document.querySelector('.qty-btn.minus');
+    const plusBtn = document.querySelector('.qty-btn.plus');
+    
+    if (minusBtn && plusBtn) {
+        minusBtn.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            if (val > 1) qtyInput.value = val - 1;
+        });
+        
+        plusBtn.addEventListener('click', () => {
+            let val = parseInt(qtyInput.value);
+            if (val < 10) qtyInput.value = val + 1;
+        });
+    }
+    
+    // Form submission
+    document.getElementById('customizeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Build customization JSON
+        const customization = {
+            cover_text: coverTextInput ? coverTextInput.value : '',
+            cover_material: document.querySelector('input[name="cover_material"]:checked')?.value || '',
+            cover_color: document.querySelector('input[name="cover_color"]:checked')?.value || '',
+            page_type: document.querySelector('input[name="page_type"]:checked')?.value || ''
+        };
+        
+        const formData = new FormData();
+        formData.append('product_id', '{{ product.id }}');
+        formData.append('quantity', qtyInput.value);
+        formData.append('customization', JSON.stringify(customization));
+        
+        fetch('{% url "catalog:add_to_cart" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('cartCount').textContent = data.cart_count;
+                showNotification(data.message, 'success');
+            }
+        });
+    });
+    
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% load static catalog_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Angaza Creatives{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Premium handcrafted books, diaries, journals, notebooks, and sticky notes.{% endblock %}">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'catalog:home' %}">
+                <img src="{% static 'images/logo.jpeg' %}" alt="Angaza Creatives" class="brand-logo">
+                <span class="brand-text">Angaza</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            Shop
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'catalog:product_list' %}">All Products</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% for category in categories %}
+                            <li><a class="dropdown-item" href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog:about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'catalog:contact' %}">Contact</a>
+                    </li>
+                </ul>
+                
+                <div class="navbar-actions d-flex align-items-center">
+                    <!-- Search -->
+                    <button class="btn btn-icon" id="searchToggle">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    
+                    <!-- Wishlist -->
+                    <a href="{% url 'catalog:wishlist' %}" class="btn btn-icon position-relative" title="Wishlist">
+                        <i class="far fa-heart"></i>
+                        <span class="badge-count wishlist-count" id="wishlistCount">{{ wishlist_count }}</span>
+                    </a>
+                    
+                    <!-- Cart -->
+                    <a href="{% url 'catalog:cart' %}" class="btn btn-icon position-relative" title="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="badge-count cart-count" id="cartCount">{{ cart_count }}</span>
+                    </a>
+                    
+                    <!-- User Account -->
+                    {% if user.is_authenticated %}
+                    <div class="dropdown user-dropdown">
+                        <button class="btn btn-icon dropdown-toggle" data-bs-toggle="dropdown" title="Account">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li class="dropdown-header">Hi, {{ user.first_name|default:user.username }}</li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user me-2"></i> My Account</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:order_history' %}"><i class="fas fa-shopping-bag me-2"></i> Orders</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'accounts:login' %}" class="btn btn-icon" title="Sign In">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Currency Selector -->
+                    <div class="dropdown currency-dropdown">
+                        <button class="btn btn-currency dropdown-toggle" data-bs-toggle="dropdown">
+                            {% if current_currency %}
+                                {{ current_currency.code }}
+                            {% else %}
+                                USD
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% for currency in currencies %}
+                            <li>
+                                <a class="dropdown-item currency-option {% if currency == current_currency %}active{% endif %}" 
+                                   href="#" data-currency="{{ currency.code }}">
+                                    {{ currency.symbol }} {{ currency.code }} - {{ currency.name }}
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li><a class="dropdown-item" href="#">$ USD - US Dollar</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <button class="search-close" id="searchClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="search-container">
+            <form action="{% url 'catalog:search' %}" method="GET">
+                <input type="text" name="q" placeholder="Search for products..." class="search-input" autofocus>
+                <button type="submit" class="search-submit">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                        <div class="footer-brand">
+                            <img src="{% static 'images/logo.jpeg' %}" alt="Angaza Creatives" class="footer-logo">
+                            <span class="brand-text">Angaza Creatives</span>
+                        </div>
+                        <p class="footer-about">
+                            Crafting beautiful stationery for your thoughts, dreams, and daily adventures. 
+                            Every product is made with love and attention to detail.
+                        </p>
+                        <div class="footer-social">
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-pinterest"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                        <h5 class="footer-title">Shop</h5>
+                        <ul class="footer-links">
+                            {% for category in categories %}
+                            <li><a href="{% url 'catalog:category_detail' category.slug %}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                        <h5 class="footer-title">Company</h5>
+                        <ul class="footer-links">
+                            <li><a href="{% url 'catalog:about' %}">About Us</a></li>
+                            <li><a href="{% url 'catalog:contact' %}">Contact</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <h5 class="footer-title">Newsletter</h5>
+                        <p class="footer-newsletter-text">Subscribe to get special offers and updates.</p>
+                        <form class="newsletter-form">
+                            <input type="email" placeholder="Enter your email" required>
+                            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="copyright">&copy; 2026 Angaza Creatives. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-payments">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <i class="fab fa-cc-paypal"></i>
+                            <i class="fab fa-cc-amex"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- CSRF Token for AJAX -->
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

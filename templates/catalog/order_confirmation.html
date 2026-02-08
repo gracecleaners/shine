@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Order Confirmed - {{ order.order_number }} - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="order-confirmation-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="confirmation-card" data-aos="fade-up">
+                    <div class="confirmation-header">
+                        <div class="success-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h1>Order Confirmed!</h1>
+                        <p class="confirmation-message">
+                            Thank you for your order. We've received your order and will process it shortly.
+                        </p>
+                    </div>
+                    
+                    <div class="order-number-box">
+                        <span>Order Number</span>
+                        <strong>{{ order.order_number }}</strong>
+                    </div>
+                    
+                    <div class="confirmation-details">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h4><i class="fas fa-user"></i> Customer Details</h4>
+                                    <p>
+                                        <strong>{{ order.full_name }}</strong><br>
+                                        {{ order.email }}<br>
+                                        {{ order.phone }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h4><i class="fas fa-map-marker-alt"></i> Shipping Address</h4>
+                                    <p>
+                                        {{ order.address }}<br>
+                                        {{ order.city }}{% if order.state %}, {{ order.state }}{% endif %}<br>
+                                        {% if order.postal_code %}{{ order.postal_code }}<br>{% endif %}
+                                        {{ order.country }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h4><i class="fas fa-truck"></i> Delivery</h4>
+                                    <p>
+                                        <strong>{{ order.delivery_zone.name }}</strong><br>
+                                        Est. delivery: {{ order.delivery_zone.estimated_days_min }}-{{ order.delivery_zone.estimated_days_max }} business days
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-section">
+                                    <h4><i class="fas fa-credit-card"></i> Payment</h4>
+                                    <p>
+                                        <strong>Cash on Delivery</strong><br>
+                                        <span class="status-badge status-{{ order.payment_status }}">
+                                            {{ order.get_payment_status_display }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items-section">
+                        <h4>Order Items</h4>
+                        <div class="order-items">
+                            {% for item in order.items.all %}
+                            <div class="order-item">
+                                <div class="order-item-image">
+                                    {% if item.product.main_image %}
+                                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product_name }}">
+                                    {% else %}
+                                    <div class="order-item-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="order-item-details">
+                                    <h5>{{ item.product_name }}</h5>
+                                    <span class="item-qty">Qty: {{ item.quantity }}</span>
+                                </div>
+                                <div class="order-item-price">
+                                    {% format_price item.total_price current_currency %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="order-totals">
+                        <div class="totals-row">
+                            <span>Subtotal</span>
+                            <span>{% format_price order.subtotal current_currency %}</span>
+                        </div>
+                        <div class="totals-row">
+                            <span>Delivery Fee</span>
+                            <span>{% format_price order.delivery_fee current_currency %}</span>
+                        </div>
+                        <div class="totals-row total">
+                            <span>Total</span>
+                            <span>{% format_price order.total current_currency %}</span>
+                        </div>
+                    </div>
+                    
+                    {% if order.customer_notes %}
+                    <div class="order-notes">
+                        <h4>Your Notes</h4>
+                        <p>{{ order.customer_notes }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="confirmation-actions">
+                        <a href="{% url 'catalog:track_order' %}?order={{ order.order_number }}" class="btn btn-outline-primary">
+                            <i class="fas fa-truck me-2"></i> Track Order
+                        </a>
+                        <a href="{% url 'catalog:product_list' %}" class="btn btn-primary">
+                            Continue Shopping <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="email-notice">
+                        <i class="fas fa-envelope"></i>
+                        <p>A confirmation email has been sent to <strong>{{ order.email }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

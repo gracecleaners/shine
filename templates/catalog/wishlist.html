@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static catalog_tags %}
+
+{% block title %}Wishlist - Angaza Creatives{% endblock %}
+
+{% block content %}
+<section class="page-header wishlist-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Wishlist</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">My Wishlist</h1>
+    </div>
+</section>
+
+<section class="wishlist-section">
+    <div class="container">
+        {% if products %}
+        <div class="wishlist-count mb-4" data-aos="fade-up">
+            <p>{{ products.count }} item{{ products.count|pluralize }} in your wishlist</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1 }}0">
+                <div class="wishlist-card">
+                    <div class="wishlist-card-image">
+                        {% if product.main_image %}
+                        <a href="{{ product.get_absolute_url }}">
+                            <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+                        </a>
+                        {% else %}
+                        <a href="{{ product.get_absolute_url }}" class="wishlist-placeholder">
+                            <i class="fas fa-image"></i>
+                        </a>
+                        {% endif %}
+                        
+                        <button class="btn-remove-wishlist" data-product-id="{{ product.id }}" title="Remove from Wishlist">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        
+                        {% if product.sale_price %}
+                        <span class="badge badge-sale">-{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="wishlist-card-body">
+                        <span class="product-category">{{ product.category.name }}</span>
+                        <h4><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h4>
+                        
+                        <div class="product-price">
+                            {% if product.sale_price %}
+                            <span class="price-current">{% format_price product.sale_price current_currency %}</span>
+                            <span class="price-original">{% format_price product.price current_currency %}</span>
+                            {% else %}
+                            <span class="price-current">{% format_price product.price current_currency %}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="wishlist-card-actions">
+                            <form action="{% url 'catalog:add_to_cart' %}" method="POST" class="add-to-cart-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="fas fa-shopping-bag me-2"></i> Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-wishlist text-center" data-aos="fade-up">
+            <div class="empty-wishlist-icon">
+                <i class="far fa-heart"></i>
+            </div>
+            <h2>Your wishlist is empty</h2>
+            <p>Save items you love by clicking the heart icon on any product.</p>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-primary btn-lg">
+                Discover Products <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove from wishlist
+    document.querySelectorAll('.btn-remove-wishlist').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const card = this.closest('.col-xl-3');
+            
+            fetch('{% url "catalog:remove_from_wishlist" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `product_id=${productId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        card.remove();
+                        document.getElementById('wishlistCount').textContent = data.wishlist_count;
+                        if (data.wishlist_count === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            });
+        });
+    });
+    
+    // Add to cart from wishlist
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('cartCount').textContent = data.cart_count;
+                    showNotification(data.message, 'success');
+                }
+            });
+        });
+    });
+    
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}
