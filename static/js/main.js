@@ -93,24 +93,35 @@ function initNavbar() {
  */
 function initSearch() {
     const searchToggle = document.getElementById('searchToggle');
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
     const searchOverlay = document.getElementById('searchOverlay');
     const searchClose = document.getElementById('searchClose');
     const searchInput = document.querySelector('.search-input');
 
-    if (!searchToggle || !searchOverlay) return;
+    if (!searchOverlay) return;
 
-    searchToggle.addEventListener('click', () => {
+    const openSearch = () => {
         searchOverlay.classList.add('active');
         document.body.style.overflow = 'hidden';
         if (searchInput) {
             setTimeout(() => searchInput.focus(), 300);
         }
-    });
+    };
 
     const closeSearch = () => {
         searchOverlay.classList.remove('active');
         document.body.style.overflow = '';
     };
+
+    // Desktop search toggle
+    if (searchToggle) {
+        searchToggle.addEventListener('click', openSearch);
+    }
+    
+    // Mobile search toggle
+    if (mobileSearchToggle) {
+        mobileSearchToggle.addEventListener('click', openSearch);
+    }
 
     if (searchClose) {
         searchClose.addEventListener('click', closeSearch);
@@ -347,7 +358,7 @@ function toggleWishlist(productId, isAdding, icon, button) {
  * Update cart count in navbar and mobile nav
  */
 function updateCartCount(count) {
-    const cartCountEls = document.querySelectorAll('.cart-count, #cartCount, #mobileCartCount, .mobile-cart-badge');
+    const cartCountEls = document.querySelectorAll('.cart-count, #cartCount, #mobileCartCount, .mobile-cart-badge, #mobileCartBadge, .mobile-quick-actions .badge-count');
     cartCountEls.forEach(el => {
         el.textContent = count;
         el.style.display = count > 0 ? 'flex' : 'none';

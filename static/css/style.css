@@ -226,6 +226,70 @@ h1, h2, h3, h4, h5, h6 {
     gap: 15px;
 }
 
+/* Mobile Quick Actions - Always visible in navbar on mobile */
+.mobile-quick-actions {
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.mobile-quick-actions .btn-icon {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-light);
+    border-radius: 50%;
+    color: var(--text-dark);
+    font-size: 1rem;
+    position: relative;
+}
+
+.mobile-quick-actions .mobile-cart-link {
+    background: var(--primary-color);
+    color: white;
+}
+
+.mobile-quick-actions .mobile-cart-link:hover {
+    background: var(--primary-dark);
+    color: white;
+}
+
+.mobile-quick-actions .badge-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    font-size: 0.65rem;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid white;
+}
+
+.mobile-currency-toggle {
+    background: var(--bg-light) !important;
+    border: 1px solid var(--border-color) !important;
+    padding: 0 10px !important;
+    width: auto !important;
+    min-width: 50px;
+    border-radius: var(--radius-full) !important;
+}
+
+.mobile-currency-toggle .currency-code {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
 .btn-currency {
     background: var(--bg-light);
     border: 1px solid var(--border-color);

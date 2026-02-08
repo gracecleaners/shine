@@ -35,6 +35,25 @@
                 <span class="brand-text">Angaza</span>
             </a>
             
+            <!-- Mobile Quick Actions - Always Visible -->
+            <div class="mobile-quick-actions d-lg-none d-flex align-items-center">
+                <!-- Search -->
+                <button class="btn btn-icon mobile-search-btn" id="mobileSearchToggle">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                <!-- Cart -->
+                <a href="{% url 'catalog:cart' %}" class="btn btn-icon position-relative mobile-cart-link" title="Cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="badge-count cart-count" id="mobileCartBadge">{{ cart_count }}</span>
+                </a>
+                
+                <!-- Currency -->
+                <button class="btn btn-icon mobile-currency-toggle" type="button" data-bs-toggle="modal" data-bs-target="#currencyModal">
+                    <span class="currency-code">{% if current_currency %}{{ current_currency.code }}{% else %}USD{% endif %}</span>
+                </button>
+            </div>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -68,7 +87,8 @@
                     </li>
                 </ul>
                 
-                <div class="navbar-actions d-flex align-items-center">
+                <!-- Desktop Navbar Actions - Hidden on Mobile -->
+                <div class="navbar-actions d-none d-lg-flex align-items-center">
                     <!-- Search -->
                     <button class="btn btn-icon" id="searchToggle">
                         <i class="fas fa-search"></i>
@@ -237,21 +257,21 @@
             <i class="fas fa-th-large"></i>
             <span>Shop</span>
         </a>
-        <a href="{% url 'catalog:cart' %}" class="mobile-nav-item mobile-cart-btn">
-            <div class="mobile-cart-icon">
-                <i class="fas fa-shopping-bag"></i>
-                <span class="mobile-cart-badge" id="mobileCartCount">{{ cart_count }}</span>
-            </div>
-            <span>Cart</span>
-        </a>
         <a href="{% url 'catalog:wishlist' %}" class="mobile-nav-item">
             <i class="far fa-heart"></i>
             <span>Wishlist</span>
         </a>
-        <button class="mobile-nav-item mobile-currency-btn" type="button" data-bs-toggle="modal" data-bs-target="#currencyModal">
-            <i class="fas fa-globe"></i>
-            <span>{% if current_currency %}{{ current_currency.code }}{% else %}USD{% endif %}</span>
-        </button>
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="mobile-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="mobile-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
     </nav>
     
     <!-- Currency Modal for Mobile -->
