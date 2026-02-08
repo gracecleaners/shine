@@ -786,12 +786,14 @@ section {
 
 .product-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-btn {
-    width: 45px;
-    height: 45px;
+    width: 42px;
+    height: 42px;
     background: white;
     border: none;
     border-radius: 50%;
@@ -803,15 +805,47 @@ section {
     transform: translateY(20px);
     opacity: 0;
     animation: fadeInUp 0.3s ease forwards;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.action-btn i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.action-btn:nth-child(1) {
+    animation-delay: 0s;
 }
 
 .action-btn:nth-child(2) {
     animation-delay: 0.1s;
 }
 
+.action-btn:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
 .action-btn:hover {
     background: var(--primary-color);
     color: white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(245, 166, 35, 0.4);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+/* Wishlist button active state */
+.action-btn.wishlist-btn.active {
+    background: #ff4757;
+    color: white;
+}
+
+.action-btn.wishlist-btn.active i {
+    font-weight: 900;
 }
 
 @keyframes fadeInUp {
@@ -2319,13 +2353,21 @@ section {
         bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
-        gap: 6px;
+        gap: 8px;
     }
     
     .action-btn {
-        width: 34px;
-        height: 34px;
-        font-size: 0.8rem;
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        transform: none;
+        opacity: 1;
+        animation: none;
+    }
+    
+    .action-btn i {
+        font-size: 0.85rem;
     }
     
     .product-badges {
@@ -4542,16 +4584,21 @@ section {
     
     .product-overlay {
         opacity: 1;
-        background: rgba(0, 0, 0, 0.15);
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.35) 0%, transparent 60%);
     }
     
     .product-actions {
-        gap: 8px;
+        gap: 10px;
     }
     
     .action-btn {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .action-btn i {
         font-size: 0.9rem;
     }
     
@@ -4639,9 +4686,18 @@ section {
     }
     
     .action-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
+        width: 34px;
+        height: 34px;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .action-btn i {
+        font-size: 0.8rem;
+    }
+    
+    .product-actions {
+        gap: 8px;
     }
     
     /* Section padding */
