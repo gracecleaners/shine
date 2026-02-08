@@ -7,6 +7,14 @@
     <title>{% block title %}Angaza Creatives{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Premium handcrafted books, diaries, journals, notebooks, and sticky notes.{% endblock %}">
     
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#F5A623">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Angaza Creatives">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.jpeg' %}">
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -249,10 +257,6 @@
     
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="mobile-bottom-nav d-lg-none">
-        <a href="{% url 'catalog:home' %}" class="mobile-nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
         <a href="{% url 'catalog:product_list' %}" class="mobile-nav-item">
             <i class="fas fa-th-large"></i>
             <span>Shop</span>
@@ -261,9 +265,16 @@
             <i class="far fa-heart"></i>
             <span>Wishlist</span>
         </a>
+        <a href="{% url 'catalog:cart' %}" class="mobile-nav-item mobile-cart-btn">
+            <div class="mobile-cart-icon">
+                <i class="fas fa-shopping-bag"></i>
+                <span class="mobile-cart-badge cart-count" id="mobileCartCount">{{ cart_count }}</span>
+            </div>
+            <span>Cart</span>
+        </a>
         {% if user.is_authenticated %}
         <a href="{% url 'accounts:profile' %}" class="mobile-nav-item">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-user-circle"></i>
             <span>Account</span>
         </a>
         {% else %}
@@ -324,6 +335,21 @@
     <!-- CSRF Token for AJAX -->
     <script>
         const csrftoken = '{{ csrf_token }}';
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registered:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
     </script>
     
     {% block extra_js %}{% endblock %}

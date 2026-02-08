@@ -59,20 +59,28 @@ function initNavbar() {
     // Mobile menu handling
     const navbarCollapse = document.getElementById('navbarNav');
     if (navbarCollapse) {
-        // Prevent body scroll when mobile menu is open
+        // Prevent body scroll when mobile menu is open and add bg to navbar
         navbarCollapse.addEventListener('show.bs.collapse', function() {
             document.body.classList.add('menu-open');
             document.body.style.overflow = 'hidden';
+            navbar.classList.add('show-bg');
         });
         
         navbarCollapse.addEventListener('hide.bs.collapse', function() {
             document.body.classList.remove('menu-open');
             document.body.style.overflow = '';
+            // Only remove show-bg if not scrolled
+            if (window.pageYOffset <= 50) {
+                navbar.classList.remove('show-bg');
+            }
         });
         
         navbarCollapse.addEventListener('hidden.bs.collapse', function() {
             document.body.classList.remove('menu-open');
             document.body.style.overflow = '';
+            if (window.pageYOffset <= 50) {
+                navbar.classList.remove('show-bg');
+            }
         });
         
         // Close menu when clicking on a link
