@@ -786,15 +786,21 @@ section {
 
 .product-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     justify-content: center;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .action-btn {
-    width: 42px;
-    height: 42px;
-    background: white;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    background: var(--bg-light);
     border: none;
     border-radius: 50%;
     display: flex;
@@ -805,14 +811,16 @@ section {
     transform: translateY(20px);
     opacity: 0;
     animation: fadeInUp 0.3s ease forwards;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--text-dark);
 }
 
 .action-btn i {
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .action-btn:nth-child(1) {
@@ -2353,21 +2361,26 @@ section {
         bottom: 10px;
         left: 50%;
         transform: translateX(-50%);
-        gap: 8px;
+        gap: 6px;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: var(--radius-full);
     }
     
     .action-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+        font-size: 0.8rem;
         transform: none;
         opacity: 1;
         animation: none;
+        background: var(--bg-light);
     }
     
     .action-btn i {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
     
     .product-badges {
@@ -4588,20 +4601,25 @@ section {
     }
     
     .product-actions {
-        gap: 10px;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: var(--radius-full);
     }
     
     .action-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 0.9rem;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 0.85rem;
+        background: var(--bg-light);
     }
     
     .action-btn i {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
-    
+
     /* Container padding */
     .container {
         padding-left: 15px;
@@ -4686,18 +4704,21 @@ section {
     }
     
     .action-btn {
-        width: 34px;
-        height: 34px;
-        font-size: 0.8rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        font-size: 0.75rem;
+        background: var(--bg-light);
     }
     
     .action-btn i {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
     
     .product-actions {
-        gap: 8px;
+        gap: 5px;
+        padding: 5px 8px;
     }
     
     /* Section padding */
