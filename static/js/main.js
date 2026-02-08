@@ -156,7 +156,8 @@ function initBackToTop() {
  * Currency selector - AJAX currency switching
  */
 function initCurrencySelector() {
-    const currencyOptions = document.querySelectorAll('.currency-option');
+    // Handle both dropdown options and modal list items
+    const currencyOptions = document.querySelectorAll('.currency-option, .currency-list-item');
     
     currencyOptions.forEach(option => {
         option.addEventListener('click', function(e) {
@@ -167,9 +168,14 @@ function initCurrencySelector() {
 
             // Show loading state
             const btn = document.querySelector('.btn-currency');
-            const originalText = btn.textContent;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            btn.disabled = true;
+            const mobileBtn = document.querySelector('.mobile-currency-btn span');
+            let originalText = '';
+            
+            if (btn) {
+                originalText = btn.textContent;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+            }
 
             // Send AJAX request to change currency
             fetch('/api/set-currency/', {
@@ -183,6 +189,9 @@ function initCurrencySelector() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Close modal if open
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('currencyModal'));
+                    if (modal) modal.hide();
                     // Reload page to show new prices
                     window.location.reload();
                 } else {
@@ -191,8 +200,10 @@ function initCurrencySelector() {
             })
             .catch(error => {
                 console.error('Currency change error:', error);
-                btn.textContent = originalText;
-                btn.disabled = false;
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
                 showNotification('Failed to change currency. Please try again.', 'error');
             });
         });
@@ -333,10 +344,10 @@ function toggleWishlist(productId, isAdding, icon, button) {
 }
 
 /**
- * Update cart count in navbar
+ * Update cart count in navbar and mobile nav
  */
 function updateCartCount(count) {
-    const cartCountEls = document.querySelectorAll('.cart-count, #cartCount');
+    const cartCountEls = document.querySelectorAll('.cart-count, #cartCount, #mobileCartCount, .mobile-cart-badge');
     cartCountEls.forEach(el => {
         el.textContent = count;
         el.style.display = count > 0 ? 'flex' : 'none';
