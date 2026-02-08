@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Navbar scroll effects
+ * Navbar scroll effects and mobile menu
  */
 function initNavbar() {
     const navbar = document.getElementById('mainNavbar');
@@ -55,6 +55,37 @@ function initNavbar() {
         
         lastScroll = currentScroll;
     });
+    
+    // Mobile menu handling
+    const navbarCollapse = document.getElementById('navbarNav');
+    if (navbarCollapse) {
+        // Prevent body scroll when mobile menu is open
+        navbarCollapse.addEventListener('show.bs.collapse', function() {
+            document.body.classList.add('menu-open');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        navbarCollapse.addEventListener('hide.bs.collapse', function() {
+            document.body.classList.remove('menu-open');
+            document.body.style.overflow = '';
+        });
+        
+        navbarCollapse.addEventListener('hidden.bs.collapse', function() {
+            document.body.classList.remove('menu-open');
+            document.body.style.overflow = '';
+        });
+        
+        // Close menu when clicking on a link
+        const navLinks = navbarCollapse.querySelectorAll('.nav-link:not(.dropdown-toggle)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                }
+            });
+        });
+    }
 }
 
 /**
